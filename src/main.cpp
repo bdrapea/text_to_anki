@@ -17,6 +17,7 @@ int main()
     {
         t2a::check_file(text_file_path);
         t2a::check_database(ref_db_path);
+        t2a::check_output_database(out_db_path);
     }
     catch (const char* error_msg)
     {

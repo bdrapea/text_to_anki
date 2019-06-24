@@ -20,4 +20,5 @@ std::string load_file_in_string(const boost::filesystem::path& file_path);
 std::string sql_insert_vocabulary(const char* word, const char* meaning);
 void check_file(const boost::filesystem::path& file_path);
 void check_database(const boost::filesystem::path& database_path);
+void check_output_database(const boost::filesystem::path& output_db_path);
 }

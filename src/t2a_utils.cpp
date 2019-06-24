@@ -47,4 +47,14 @@ void check_database(const boost::filesystem::path& database_path)
         throw sqlite3_errstr(sql_result);
     }
 }
+
+void check_output_database(const boost::filesystem::path& output_db_path)
+{
+    if (boost::filesystem::exists(output_db_path))
+    {
+        std::cerr << "Output database already present: deleting it ..."
+                  << std::endl;
+        remove(output_db_path.string().c_str());
+    }
+}
 }
