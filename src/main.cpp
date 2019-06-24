@@ -10,6 +10,9 @@ constexpr const char* ref_db_path =
 constexpr const char* out_db_path =
     "/home/bdrapeaud/Bureau/japanese_output_database.db";
 
+constexpr const char* anki_apkg_path =
+    "/home/bdrapeaud/Bureau/japanese_output_database.db";
+
 int main()
 {
     /** Input integrity checking **/
@@ -18,6 +21,7 @@ int main()
         t2a::check_file(text_file_path);
         t2a::check_database(ref_db_path);
         t2a::check_output_database(out_db_path);
+        t2a::check_output_anki_apkg(anki_apkg_path);
     }
     catch (const char* error_msg)
     {
@@ -28,6 +32,7 @@ int main()
     /** Main algorithm **/
     std::string str = t2a::load_file_in_string(text_file_path);
     t2a::generate_sub_database_from_string(ref_db_path, str, out_db_path);
+    t2a::generate_anki_apkg_from_database(out_db_path, anki_apkg_path);
 
     return 0;
 }

@@ -16,4 +16,8 @@ void generate_sub_database_from_string(
     const boost::filesystem::path& reference_database_path,
     const std::string& str,
     const boost::filesystem::path& output_database_path);
+
+void generate_anki_apkg_from_database(
+    const boost::filesystem::path& database_path,
+    const boost::filesystem::path& anki_apkg_path);
 }

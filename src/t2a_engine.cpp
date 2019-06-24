@@ -51,4 +51,29 @@ void generate_sub_database_from_string(
     sqlite3_close(ref_db);
     sqlite3_close(out_db);
 }
+
+void generate_anki_apkg_from_database(
+    const boost::filesystem::path& database_path,
+    const boost::filesystem::path& anki_apkg_path)
+{
+    boost::filesystem::path anki_dir_path = anki_apkg_path.parent_path();
+    boost::filesystem::path anki_media_path = anki_dir_path;
+    anki_media_path /= "media";
+    boost::filesystem::path anki_anki2_path = anki_dir_path;
+    anki_anki2_path /= "col.anki2";
+
+    /** Creating default media file **/
+    create_empty_anki_media_file(anki_media_path);
+
+    /** Creating default anki2 file **/
+    create_default_anki2_file(anki_anki2_path);
+
+    /** Add db value to anki2 file **/
+
+    /** Zipping media file and anki2 file to apkg **/
+
+    /** Deleting anki2 and media file **/
+    remove(anki_media_path);
+    remove(anki_anki2_path);
+}
 }
