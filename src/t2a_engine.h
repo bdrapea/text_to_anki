@@ -1,14 +1,19 @@
 #pragma once
 
+#include <cstring>
+#include <iostream>
 #include <string>
-
-#include <sqlite3.h>
 
 #include <boost/filesystem.hpp>
 
+#include <sqlite3.h>
+
+#include "t2a_utils.h"
+
 namespace t2a
 {
-boost::filesystem::path generate_sub_database_from_string(
-        const boost::filesystem::path& reference_database,
-        const std::string& str);
+void generate_sub_database_from_string(
+    const boost::filesystem::path& reference_database_path,
+    const std::string& str,
+    const boost::filesystem::path& output_database_path);
 }

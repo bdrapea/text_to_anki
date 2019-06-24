@@ -10,8 +10,10 @@ find_library(sqlite3 REQUIRED)
 
 #set main variables
 set(SOURCES "src/main.cpp"
-            "src/t2a_engine.cpp")
-set(HEADERS "src/t2a_engine.h")
+            "src/t2a_engine.cpp"
+            "src/t2a_utils.cpp")
+set(HEADERS "src/t2a_engine.h"
+            "src/t2a_utils.h")
 
 #set dependencies
 set(INCLUDE_DIRS
