@@ -60,7 +60,7 @@ void generate_anki_apkg_from_database(
     boost::filesystem::path anki_media_path = anki_dir_path;
     anki_media_path /= "media";
     boost::filesystem::path anki_anki2_path = anki_dir_path;
-    anki_anki2_path /= "col.anki2";
+    anki_anki2_path /= "collection.anki2";
 
     /** Creating default media file **/
     create_empty_anki_media_file(anki_media_path);
@@ -69,11 +69,13 @@ void generate_anki_apkg_from_database(
     create_default_anki2_file(anki_anki2_path);
 
     /** Add db value to anki2 file **/
+    add_anki_collection(database_path, anki_anki2_path, "test");
 
     /** Zipping media file and anki2 file to apkg **/
+    create_apkg(anki_anki2_path, anki_media_path, "yy");
 
     /** Deleting anki2 and media file **/
-    //remove(anki_media_path);
-    //remove(anki_anki2_path);
+    remove(anki_media_path);
+    remove(anki_anki2_path);
 }
 }

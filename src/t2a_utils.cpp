@@ -22,4 +22,31 @@ void check_file(const boost::filesystem::path& file_path)
         " can be read";
     }
 }
+
+void run_process(const char* command)
+{
+    FILE* process = popen(command, "r");
+    char buff[128];
+    while ( fgets( buff, 128, process) != nullptr )
+    {
+        printf("LS->%s", buff );
+    }
+    pclose(process);
+}
+
+long millis()
+{
+    using namespace std::chrono;
+    milliseconds ms =
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+    return ms.count();
+}
+
+long micros()
+{
+    using namespace std::chrono;
+    microseconds mr =
+        duration_cast<microseconds>(system_clock::now().time_since_epoch());
+    return mr.count();
+}
 }
