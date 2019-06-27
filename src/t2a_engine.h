@@ -8,6 +8,8 @@
 
 #include <sqlite3.h>
 
+#include "t2a_anki.h"
+#include "t2a_sqlite.h"
 #include "t2a_utils.h"
 
 namespace t2a

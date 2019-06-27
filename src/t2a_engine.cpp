@@ -73,7 +73,7 @@ void generate_anki_apkg_from_database(
     /** Zipping media file and anki2 file to apkg **/
 
     /** Deleting anki2 and media file **/
-    remove(anki_media_path);
-    remove(anki_anki2_path);
+    //remove(anki_media_path);
+    //remove(anki_anki2_path);
 }
 }
