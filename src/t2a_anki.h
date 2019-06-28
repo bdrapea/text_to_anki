@@ -3,6 +3,10 @@
 #include <iostream>
 
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <sqlite3.h>
 

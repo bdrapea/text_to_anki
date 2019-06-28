@@ -35,9 +35,10 @@ void add_anki_collection(
     sqlite3_open(anki2_path.c_str(), &anki_db);
 
     std::string sql_insert_statement =
-        sql_insert_anki_collection(1, collection_name);
+        sql_insert_anki_collection(4, collection_name);
 
-    sql_insert_statement += sql_insert_vocabulary(vocabulary_db_path);
+    sql_insert_statement +=
+        sql_insert_vocabulary(vocabulary_db_path);
 
     int sql_err = sqlite3_exec(anki_db,
                                sql_insert_statement.c_str(),
@@ -59,7 +60,8 @@ std::string sql_insert_anki_collection(
     template_path /= TEMPLATE_DIR_NAME;
 
     std::string sql_cmd = "INSERT INTO col VALUES(";
-    sql_cmd += "4,0,0,0,11,0,0,0,";
+    sql_cmd += std::to_string(id);
+    sql_cmd += ",1332961200,1398130163295,1398130163168,11,0,0,0,";
 
     boost::filesystem::path default_conf_json_path = template_path;
     default_conf_json_path /= "default_conf.json";
@@ -75,8 +77,20 @@ std::string sql_insert_anki_collection(
 
     boost::filesystem::path default_decks_json_path = template_path;
     default_decks_json_path /= "default_decks.json";
+    std::string default_decks_str =
+        load_file_in_string(default_decks_json_path);
+
+    boost::property_tree::ptree decks_pt;
+    boost::property_tree::read_json(default_decks_json_path.c_str(), decks_pt);
+
+    decks_pt.get_child("1398130078204").
+    put<std::string>("name", collection_name);
+
+    decks_pt.get_child("1398130078204").
+    put<long>("id", micros());
+
     sql_cmd += '\'';
-    sql_cmd += load_file_in_string(default_decks_json_path);
+    sql_cmd += default_decks_str;
     sql_cmd += "\',";
 
     boost::filesystem::path default_dconf_json_path = template_path;
@@ -111,19 +125,25 @@ std::string sql_insert_vocabulary(
             const char* meaning =
                 reinterpret_cast<const char*>(
                     sqlite3_column_text(stmt, MEANING_COLUMN_INDEX));
+            sql_cmd += "INSERT INTO notes VALUES(";
+            sql_cmd += std::to_string(micros());
+            sql_cmd += ",'";
+            std::cout << boost::uuids::random_generator()() << std::endl;
+            sql_cmd += "\',";
+            sql_cmd += ", 1342697561419,";
+            sql_cmd += std::to_string(millis());
+            sql_cmd += ",-1,'',";
+            sql_cmd += "\'";
+            sql_cmd += word;
+            sql_cmd += "\',";
+            sql_cmd += "\'";
+            sql_cmd += meaning;
+            sql_cmd += "\',4077833205,0,'');";
 
             sql_cmd += "INSERT INTO cards VALUES(";
-            sql_cmd += std::to_string(millis());
-            sql_cmd += ",";
-            sql_cmd += "0,";
-            sql_cmd += "1,";
-            sql_cmd += "0,";
-            sql_cmd += "0,";
-            sql_cmd += "0,";
-            sql_cmd += "0,";
-            sql_cmd += "0,";
-            sql_cmd += "0,";
-            sql_cmd += "0,";
+            sql_cmd += std::to_string(micros());
+            sql_cmd += ",0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,'');";
+
         }
         else if (retval == SQLITE_DONE)
         {
