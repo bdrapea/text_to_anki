@@ -2,10 +2,10 @@
 #include "t2a_utils.h"
 
 constexpr const char* text_file_path =
-    "/home/bdrapeaud/Programmation/CppProjects/text_to_anki/text_to_anki/test_files/japanese.txt";
+    "/home/bdrapeaud/Programmation/Cpp/text_to_anki/text_to_anki/test_files/japanese.txt";
 
 constexpr const char* ref_db_path =
-    "/home/bdrapeaud/Programmation/CppProjects/text_to_anki/text_to_anki/test_files/japanese_reference_database.db";
+    "/home/bdrapeaud/Programmation/Cpp/text_to_anki/text_to_anki/test_files/japanese_reference_database.db";
 
 constexpr const char* out_db_path =
     "/home/bdrapeaud/Bureau/japanese_output_database.db";

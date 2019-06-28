@@ -18,7 +18,7 @@ void create_default_anki2_file(const boost::filesystem::path& anki2_path)
     sqlite3_open(anki2_path.c_str(), &anki2_db);
 
     boost::filesystem::path sql_template_path =
-            boost::filesystem::path(__FILE__).parent_path().parent_path();
+        boost::filesystem::path(__FILE__).parent_path().parent_path();
     sql_template_path /= TEMPLATE_DIR_NAME;
     sql_template_path /= ANKI_SQL_TEMPLATE_FILENAME;
     std::string sql_cmds = load_file_in_string(sql_template_path);
@@ -27,23 +27,23 @@ void create_default_anki2_file(const boost::filesystem::path& anki2_path)
 }
 
 void add_anki_collection(
-        const boost::filesystem::path& vocabulary_db_path,
-        const boost::filesystem::path& anki2_path,
-        const char* collection_name)
+    const boost::filesystem::path& vocabulary_db_path,
+    const boost::filesystem::path& anki2_path,
+    const char* collection_name)
 {
     sqlite3* anki_db = nullptr;
     sqlite3_open(anki2_path.c_str(), &anki_db);
 
     std::string sql_insert_statement =
-            sql_insert_anki_collection(1, collection_name);
+        sql_insert_anki_collection(1, collection_name);
 
     sql_insert_statement += sql_insert_vocabulary(vocabulary_db_path);
 
     int sql_err = sqlite3_exec(anki_db,
-                 sql_insert_statement.c_str(),
-                 nullptr,
-                 nullptr,
-                 nullptr);
+                               sql_insert_statement.c_str(),
+                               nullptr,
+                               nullptr,
+                               nullptr);
 
     std::cout << sqlite3_errstr(sql_err) << std::endl;
 
@@ -51,11 +51,11 @@ void add_anki_collection(
 }
 
 std::string sql_insert_anki_collection(
-        const int id,
-        const char* collection_name)
+    const int id,
+    const char* collection_name)
 {
     boost::filesystem::path template_path =
-            boost::filesystem::path(__FILE__).parent_path().parent_path();
+        boost::filesystem::path(__FILE__).parent_path().parent_path();
     template_path /= TEMPLATE_DIR_NAME;
 
     std::string sql_cmd = "INSERT INTO col VALUES(";
@@ -86,13 +86,11 @@ std::string sql_insert_anki_collection(
     sql_cmd += "\',";
     sql_cmd += "'{}');";
 
-    std::cout << sql_cmd << std::endl;
-
     return sql_cmd;
 }
 
 std::string sql_insert_vocabulary(
-        const boost::filesystem::path& vocabulary_db_path)
+    const boost::filesystem::path& vocabulary_db_path)
 {
     std::string sql_cmd = "";
     sqlite3* voc_db = nullptr;
@@ -100,7 +98,7 @@ std::string sql_insert_vocabulary(
     int retval = 0;
 
     sqlite3_open(vocabulary_db_path.string().c_str(), &voc_db);
-    sqlite3_prepare_v2(voc_db, sql_cmd.c_str(), -1, &stmt, nullptr);
+    sqlite3_prepare_v2(voc_db, "SELECT * FROM Vocabulary", -1, &stmt, nullptr);
     while (true)
     {
         retval = sqlite3_step(stmt);
@@ -126,7 +124,6 @@ std::string sql_insert_vocabulary(
             sql_cmd += "0,";
             sql_cmd += "0,";
             sql_cmd += "0,";
-
         }
         else if (retval == SQLITE_DONE)
         {
@@ -140,9 +137,9 @@ std::string sql_insert_vocabulary(
 }
 
 void create_apkg(
-        const boost::filesystem::path& anki2_path,
-        const boost::filesystem::path& media_path,
-        const char* apkg_name)
+    const boost::filesystem::path& anki2_path,
+    const boost::filesystem::path& media_path,
+    const char* apkg_name)
 {
     boost::filesystem::path anki2_dir = anki2_path.parent_path();
     boost::filesystem::path apkg_path = anki2_dir;
