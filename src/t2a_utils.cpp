@@ -23,6 +23,14 @@ void check_file(const boost::filesystem::path& file_path)
     }
 }
 
+void check_pdf(const boost::filesystem::path& pdf_path)
+{
+    if( poppler::document::load_from_file(pdf_path.c_str()) == nullptr)
+    {
+        throw "Cannot load pdf file";
+    }
+}
+
 void run_process(const char* command)
 {
     FILE* process = popen(command, "r");

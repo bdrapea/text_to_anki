@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 #link boost lib
 find_package(Boost REQUIRED)
 find_library(sqlite3 REQUIRED)
+find_library(Poppler REQUIRED)
 
 #set main variables
 set(SOURCES "src/main.cpp"
@@ -22,10 +23,12 @@ set(HEADERS "src/t2a_engine.h"
 #set dependencies
 set(INCLUDE_DIRS
     ${Boost_INCLUDE_DIRS}
-    ${SQLite3_INCLUDE_DIRS})
+    ${SQLite3_INCLUDE_DIRS}
+    ${Poppler_INCLUDE_DIRS})
 set(LIBS
     ${Boost_LIBS} -lboost_system -lboost_filesystem
-    ${SQLite3_LIBS} -lsqlite3)
+    ${SQLite3_LIBS} -lsqlite3
+    ${Poppler_LIBS} -lpoppler-cpp)
 
 #Set the final executable
 include_directories(${INCLUDE_DIRS})

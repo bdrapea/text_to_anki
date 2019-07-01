@@ -143,10 +143,6 @@ void add_anki_collection(
                                        nullptr,
                                        nullptr,
                                        nullptr);
-
-            std::cout << card_id << 'x' << note_id << 'x' << deck_id << std::endl;
-
-            std::cout << sqlite3_errstr(sql_err) << std::endl;
         }
         else if (retval == SQLITE_DONE)
         {

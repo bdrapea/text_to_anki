@@ -1,6 +1,9 @@
 #include "t2a_engine.h"
 #include "t2a_utils.h"
 
+constexpr const char* goi_pdf_path =
+    "/home/bdrapeaud/Programmation/Cpp/text_to_anki/text_to_anki/templates/goi.pdf";
+
 constexpr const char* text_file_path =
     "/home/bdrapeaud/Programmation/Cpp/text_to_anki/text_to_anki/test_files/japanese.txt";
 
@@ -18,6 +21,7 @@ int main()
     /** Input integrity checking **/
     try
     {
+        t2a::check_pdf(goi_pdf_path);
         t2a::check_file(text_file_path);
         t2a::check_database(ref_db_path);
         t2a::check_output_database(out_db_path);
@@ -30,9 +34,10 @@ int main()
     }
 
     /** Main algorithm **/
-    std::string str = t2a::load_file_in_string(text_file_path);
-    t2a::generate_sub_database_from_string(ref_db_path, str, out_db_path);
-    t2a::generate_anki_apkg_from_database(out_db_path, anki_apkg_path);
+    t2a::generate_reference_database_from_goi_pdf(goi_pdf_path, ref_db_path);
+//    std::string str = t2a::load_file_in_string(text_file_path);
+//    t2a::generate_sub_database_from_string(ref_db_path, str, out_db_path);
+//    t2a::generate_anki_apkg_from_database(out_db_path, anki_apkg_path);
 
     return 0;
 }

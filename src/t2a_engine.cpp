@@ -2,10 +2,24 @@
 
 namespace t2a
 {
+void generate_reference_database_from_goi_pdf(
+    const boost::filesystem::path& goi_pdf_path,
+    const boost::filesystem::path& reference_database_path)
+{
+    poppler::document* goi_pdf =
+        poppler::document::load_from_file(goi_pdf_path.c_str());
+
+    sqlite3* ref_db = nullptr;
+    sqlite3_open(reference_database_path.c_str(), &ref_db);
+    sqlite3_close(ref_db);
+
+    std::cout << goi_pdf->create_page(0)->text().to_utf8().data() << std::endl;
+}
+
 void generate_sub_database_from_string(
     const boost::filesystem::path& reference_database_path,
     const std::string& str,
-    const boost::filesystem::path& output_database_path)
+    const boost::filesystem::path&vocabulary_database_path)
 {
     sqlite3* ref_db = nullptr;
     sqlite3* out_db = nullptr;
@@ -13,7 +27,7 @@ void generate_sub_database_from_string(
     int retval = 0;
     std::string sql_cmd = "";
 
-    sqlite3_open(output_database_path.string().c_str(), &out_db);
+    sqlite3_open(vocabulary_database_path.string().c_str(), &out_db);
     sqlite3_exec(out_db, CREATE_VOCABULARY_TABLE, nullptr, nullptr, nullptr);
 
     sql_cmd = "SELECT * FROM Vocabulary";
@@ -52,7 +66,7 @@ void generate_sub_database_from_string(
 }
 
 void generate_anki_apkg_from_database(
-    const boost::filesystem::path& database_path,
+    const boost::filesystem::path&vocabulary_database_path,
     const boost::filesystem::path& anki_apkg_path)
 {
     boost::filesystem::path anki_dir_path = anki_apkg_path.parent_path();
@@ -68,7 +82,7 @@ void generate_anki_apkg_from_database(
     create_default_anki2_file(anki_anki2_path);
 
     /** Add db value to anki2 file **/
-    add_anki_collection(database_path, anki_anki2_path, "test");
+    add_anki_collection(vocabulary_database_path, anki_anki2_path, "test");
 
     /** Zipping media file and anki2 file to apkg **/
     create_apkg(anki_anki2_path, anki_media_path, "yy");
