@@ -28,7 +28,6 @@ CREATE TABLE notes (
     flags           integer not null,      /* 9 */
     data            text not null          /* 10 */
 );
-INSERT INTO notes VALUES(1398130111274,'OQxYbRc]Dm',1342697561419,1398130117,-1,'','Merci' || CHAR(0x1f) || 'Thank you','Merci',1273459409,0,'');
 CREATE TABLE cards (
          id              integer primary key,   /* 0 */
          nid             integer not null,      /* 1 */
@@ -49,7 +48,6 @@ CREATE TABLE cards (
          flags           integer not null,      /* 16 */
          data            text not null          /* 17 */
 );
-INSERT INTO cards VALUES(1398130117922,1398130111274,1398130078204,0,1398130117,-1,0,0,353754516,0,0,0,0,0,0,0,0,'');
 CREATE TABLE revlog (
     id              integer primary key,
     cid             integer not null,

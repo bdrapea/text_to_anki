@@ -34,11 +34,10 @@ void generate_sub_database_from_string(
 
             if (str.find(word) != std::string::npos)
             {
-                sqlite3_errstr( sqlite3_exec(out_db,
-                                             sql_insert_vocabulary(word,meaning).c_str(),
-                                             nullptr,
-                                             nullptr,
-                                             nullptr));
+                sqlite3_exec(out_db,
+                             sql_insert_vocabulary(
+                                 word,meaning).c_str(),
+                             nullptr, nullptr, nullptr);
             }
         }
         else if (retval == SQLITE_DONE)

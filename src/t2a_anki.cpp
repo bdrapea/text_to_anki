@@ -50,10 +50,16 @@ void add_anki_collection(
 
     boost::property_tree::ptree decks_pt;
     boost::property_tree::read_json(decks_json_path.c_str(), decks_pt);
-    long deck_id = micros();
-    decks_pt.get_child(DEFAULT_DECKS_ID)
+    std::string deck_id = std::to_string(micros());
+
+    boost::property_tree::ptree::iterator pt_it =
+        decks_pt.to_iterator(decks_pt.find(DEFAULT_DECKS_ID));
+    decks_pt.insert(pt_it, std::make_pair(deck_id, pt_it->second));
+    decks_pt.erase(pt_it);
+
+    decks_pt.get_child(deck_id)
     .put<std::string>("name", collection_name);
-    decks_pt.get_child(DEFAULT_DECKS_ID).put<long>("id",deck_id);
+    decks_pt.get_child(deck_id).put<long>("id", std::stol(deck_id));
 
     std::stringstream decks_ss;
     boost::property_tree::write_json(decks_ss, decks_pt);
@@ -67,46 +73,89 @@ void add_anki_collection(
     sql_insert_col << '\'' << load_file_in_string(dconf_json_path) << "\',";
     sql_insert_col << "'{}');";
 
-    const char* word = "Bonjour";
-    const char* meaning = "Hello";
-    long note_id = millis();
-    boost::uuids::uuid guid = boost::uuids::random_generator()();
-    std::stringstream sql_insert_notes, sql_insert_cards;
-    sql_insert_notes << "INSERT INTO notes VALUES(";
-    sql_insert_notes << note_id << ",";
-    sql_insert_notes << "'"<< boost::lexical_cast<std::string>(guid) <<"',";
-    sql_insert_notes << DEFAULT_MODEL_ID << ",";
-    sql_insert_notes << seconds() << ",";
-    sql_insert_notes << "-1,'',";
-    sql_insert_notes << "'" << word << "'" << "|| CHAR(0x1f) ||";
-    sql_insert_notes << " '" << meaning << "',";
-    sql_insert_notes << "'" << word <<"',";
-    sql_insert_notes << "4077833205" <<",";
-    sql_insert_notes << "0,'');";
-
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(1ms);
-
-    long card_id = millis();
-    sql_insert_cards << "INSERT INTO cards VALUES(";
-    sql_insert_cards << card_id << ",";
-    sql_insert_cards << note_id << ",";
-    sql_insert_cards << "1398130078204" << ",";
-    sql_insert_cards << "0,1398130110,-1,0,0,484332854,0,0,0,0,0,0,0,0,'');";
-
-    std::stringstream sql_all_inserts;
-    sql_all_inserts << sql_insert_col.str();
-    sql_all_inserts << sql_insert_notes.str();
-    sql_all_inserts << sql_insert_cards.str();
-
     int sql_err = sqlite3_exec(anki_db,
-                               sql_all_inserts.str().c_str(),
+                               sql_insert_col.str().c_str(),
                                nullptr,
                                nullptr,
                                nullptr);
 
-    std::cout << sqlite3_errstr(sql_err) << std::endl;
+    int retval = SQLITE_OK;
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3* voc_db = nullptr;
+    sqlite3_open(vocabulary_db_path.c_str(), &voc_db);
+    sqlite3_prepare_v2(voc_db, "SELECT * FROM Vocabulary", -1, &stmt, nullptr);
+    while (true)
+    {
+        retval = sqlite3_step(stmt);
 
+        if (retval == SQLITE_ROW)
+        {
+            const char* word =
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, WORD_COLUMN_INDEX));
+            const char* meaning =
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, MEANING_COLUMN_INDEX));
+
+            long note_id = micros();
+            long note_mod = seconds();
+            boost::uuids::uuid guid = boost::uuids::random_generator()();
+            std::string sha1_checksum = "";
+            boost::uuids::detail::sha1 sha1;
+            sha1.process_bytes(meaning, std::strlen(meaning));
+            unsigned hash[5] = {0};
+            sha1.get_digest(hash);
+            for (size_t i = 0; i < sizeof(hash) / sizeof(hash[0]); i++)
+            {
+                sha1_checksum += std::to_string(hash[i]);
+            }
+            sha1_checksum = sha1_checksum.substr(0, SHA1_CHECKSUM_DIGITS);
+
+            std::stringstream sql_insert_notes;
+            sql_insert_notes << "INSERT INTO notes VALUES(";
+            sql_insert_notes << note_id << ",";
+            sql_insert_notes << "'"<< boost::lexical_cast<std::string>(guid) <<"',";
+            sql_insert_notes << DEFAULT_MODEL_ID << ",";
+            sql_insert_notes << note_mod << ",";
+            sql_insert_notes << "-1,'',";
+            sql_insert_notes << "'" << word << "'" << "|| CHAR(0x1f) ||";
+            sql_insert_notes << " '" << meaning << "',";
+            sql_insert_notes << "'" << word <<"',";
+            sql_insert_notes << sha1_checksum <<",";
+            sql_insert_notes << "0,'');";
+
+            std::stringstream sql_insert_cards;
+            long card_id = micros();
+            sql_insert_cards << "INSERT INTO cards VALUES(";
+            sql_insert_cards << card_id << ",";
+            sql_insert_cards << note_id << ",";
+            sql_insert_cards << deck_id << ",";
+            sql_insert_cards << "0,";
+            sql_insert_cards << note_mod << ",";
+            sql_insert_cards << "-1,0,0,484332854,0,0,0,0,0,0,0,0,'');";
+
+            std::stringstream sql_all_inserts;
+            sql_all_inserts << sql_insert_notes.str();
+            sql_all_inserts << sql_insert_cards.str();
+
+            int sql_err = sqlite3_exec(anki_db,
+                                       sql_all_inserts.str().c_str(),
+                                       nullptr,
+                                       nullptr,
+                                       nullptr);
+
+            std::cout << card_id << 'x' << note_id << 'x' << deck_id << std::endl;
+
+            std::cout << sqlite3_errstr(sql_err) << std::endl;
+        }
+        else if (retval == SQLITE_DONE)
+        {
+            break;
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(voc_db);
     sqlite3_close(anki_db);
 }
 
