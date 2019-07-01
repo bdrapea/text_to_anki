@@ -48,17 +48,59 @@ void add_anki_collection(
     boost::filesystem::path dconf_json_path = json_templates_dir;
     dconf_json_path /= DEFAULT_DCONF_JSON_FILENAME;
 
+    boost::property_tree::ptree decks_pt;
+    boost::property_tree::read_json(decks_json_path.c_str(), decks_pt);
+    long deck_id = micros();
+    decks_pt.get_child(DEFAULT_DECKS_ID)
+    .put<std::string>("name", collection_name);
+    decks_pt.get_child(DEFAULT_DECKS_ID).put<long>("id",deck_id);
+
+    std::stringstream decks_ss;
+    boost::property_tree::write_json(decks_ss, decks_pt);
+
     std::stringstream sql_insert_col;
-    sql_insert_col << "INSERT INTO col VALUES(1,1332961200,1398130163295,1398130163168,11,0,0,0,";
+    sql_insert_col << "INSERT INTO col VALUES(2,1332961200,1398130163295,";
+    sql_insert_col << "1398130163168,11,0,0,0,";
     sql_insert_col << '\'' << load_file_in_string(conf_json_path) << "\',";
     sql_insert_col << '\'' << load_file_in_string(models_json_path) << "\',";
-    sql_insert_col << '\'' << load_file_in_string(decks_json_path) << "\',";
+    sql_insert_col << '\'' << decks_ss.str() << "\',";
     sql_insert_col << '\'' << load_file_in_string(dconf_json_path) << "\',";
     sql_insert_col << "'{}');";
 
-    std::cout << sql_insert_col.str() << std::endl;
+    const char* word = "Bonjour";
+    const char* meaning = "Hello";
+    long note_id = millis();
+    boost::uuids::uuid guid = boost::uuids::random_generator()();
+    std::stringstream sql_insert_notes, sql_insert_cards;
+    sql_insert_notes << "INSERT INTO notes VALUES(";
+    sql_insert_notes << note_id << ",";
+    sql_insert_notes << "'"<< boost::lexical_cast<std::string>(guid) <<"',";
+    sql_insert_notes << DEFAULT_MODEL_ID << ",";
+    sql_insert_notes << seconds() << ",";
+    sql_insert_notes << "-1,'',";
+    sql_insert_notes << "'" << word << "'" << "|| CHAR(0x1f) ||";
+    sql_insert_notes << " '" << meaning << "',";
+    sql_insert_notes << "'" << word <<"',";
+    sql_insert_notes << "4077833205" <<",";
+    sql_insert_notes << "0,'');";
+
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(1ms);
+
+    long card_id = millis();
+    sql_insert_cards << "INSERT INTO cards VALUES(";
+    sql_insert_cards << card_id << ",";
+    sql_insert_cards << note_id << ",";
+    sql_insert_cards << "1398130078204" << ",";
+    sql_insert_cards << "0,1398130110,-1,0,0,484332854,0,0,0,0,0,0,0,0,'');";
+
+    std::stringstream sql_all_inserts;
+    sql_all_inserts << sql_insert_col.str();
+    sql_all_inserts << sql_insert_notes.str();
+    sql_all_inserts << sql_insert_cards.str();
+
     int sql_err = sqlite3_exec(anki_db,
-                               sql_insert_col.str().c_str(),
+                               sql_all_inserts.str().c_str(),
                                nullptr,
                                nullptr,
                                nullptr);

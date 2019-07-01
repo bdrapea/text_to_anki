@@ -34,6 +34,14 @@ void run_process(const char* command)
     pclose(process);
 }
 
+long seconds()
+{
+    using namespace std::chrono;
+    std::chrono::seconds s =
+        duration_cast<std::chrono::seconds>(system_clock::now().time_since_epoch());
+    return s.count();
+}
+
 long millis()
 {
     using namespace std::chrono;
