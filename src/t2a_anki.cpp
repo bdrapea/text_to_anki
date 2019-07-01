@@ -34,11 +34,13 @@ void add_anki_collection(
     sqlite3* anki_db = nullptr;
     sqlite3_open(anki2_path.c_str(), &anki_db);
 
+    std::string deck_id = "";
+
     std::string sql_insert_statement =
-        sql_insert_anki_collection(4, collection_name);
+        sql_insert_anki_collection(4, collection_name, &deck_id);
 
     sql_insert_statement +=
-        sql_insert_vocabulary(vocabulary_db_path);
+        sql_insert_vocabulary(vocabulary_db_path, deck_id);
 
     int sql_err = sqlite3_exec(anki_db,
                                sql_insert_statement.c_str(),
@@ -53,7 +55,8 @@ void add_anki_collection(
 
 std::string sql_insert_anki_collection(
     const int id,
-    const char* collection_name)
+    const char* collection_name,
+    std::string* deck_id)
 {
     boost::filesystem::path template_path =
         boost::filesystem::path(__FILE__).parent_path().parent_path();
@@ -64,37 +67,39 @@ std::string sql_insert_anki_collection(
     sql_cmd += ",1332961200,1398130163295,1398130163168,11,0,0,0,";
 
     boost::filesystem::path default_conf_json_path = template_path;
-    default_conf_json_path /= "default_conf.json";
+    default_conf_json_path /= DEFAULT_CONF_FILENAME;
     sql_cmd += '\'';
     sql_cmd += load_file_in_string(default_conf_json_path);
     sql_cmd += "\',";
 
     boost::filesystem::path default_models_json_path = template_path;
-    default_models_json_path /= "default_models.json";
+    default_models_json_path /= DEFAULT_MODELS_FILENAME;
     sql_cmd += '\'';
     sql_cmd += load_file_in_string(default_models_json_path);
     sql_cmd += "\',";
 
     boost::filesystem::path default_decks_json_path = template_path;
-    default_decks_json_path /= "default_decks.json";
+    default_decks_json_path /= DEFAULT_DECKS_FILENAME;
     std::string default_decks_str =
         load_file_in_string(default_decks_json_path);
 
     boost::property_tree::ptree decks_pt;
     boost::property_tree::read_json(default_decks_json_path.c_str(), decks_pt);
 
-    decks_pt.get_child("1398130078204").
+    decks_pt.get_child(DEFAULT_JSON_KEY).
     put<std::string>("name", collection_name);
 
-    decks_pt.get_child("1398130078204").
-    put<long>("id", micros());
+    long num_deck_id = micros();
+    *deck_id = std::to_string(num_deck_id);
+    decks_pt.get_child(DEFAULT_JSON_KEY).
+    put<long>("id", num_deck_id);
 
     sql_cmd += '\'';
     sql_cmd += default_decks_str;
     sql_cmd += "\',";
 
     boost::filesystem::path default_dconf_json_path = template_path;
-    default_dconf_json_path /= "default_dconf.json";
+    default_dconf_json_path /= DEFAULT_DCONF_FILENAME;
     sql_cmd += '\'';
     sql_cmd += load_file_in_string(default_dconf_json_path);
     sql_cmd += "\',";
@@ -104,7 +109,8 @@ std::string sql_insert_anki_collection(
 }
 
 std::string sql_insert_vocabulary(
-    const boost::filesystem::path& vocabulary_db_path)
+    const boost::filesystem::path& vocabulary_db_path,
+    const std::string& deck_id)
 {
     std::string sql_cmd = "";
     sqlite3* voc_db = nullptr;
@@ -125,24 +131,52 @@ std::string sql_insert_vocabulary(
             const char* meaning =
                 reinterpret_cast<const char*>(
                     sqlite3_column_text(stmt, MEANING_COLUMN_INDEX));
+            const boost::uuids::uuid guid = boost::uuids::random_generator()();
+            const std::string note_id = std::to_string(micros());
+            const std::string note_mod = std::to_string(millis());
+
+            boost::uuids::detail::sha1 sha1;
+            unsigned int hash[5] = {0};
+            sha1.process_bytes(NOTES_SHA1_TEXT, sizeof (NOTES_SHA1_TEXT-1));
+            sha1.get_digest(hash);
+            std::string sha1_str = "";
+            for (size_t i = 0; i < sizeof(hash) / sizeof(hash[0]); ++i)
+            {
+                sha1_str += std::to_string(hash[i]);
+            }
+            sha1_str = sha1_str.substr(0, NOTES_SHA1_DIGITS);
+
             sql_cmd += "INSERT INTO notes VALUES(";
-            sql_cmd += std::to_string(micros());
+            sql_cmd += note_id;
             sql_cmd += ",'";
-            std::cout << boost::uuids::random_generator()() << std::endl;
-            sql_cmd += "\',";
+            sql_cmd += boost::lexical_cast<std::string>(guid);
+            sql_cmd += "\'";
             sql_cmd += ", 1342697561419,";
-            sql_cmd += std::to_string(millis());
+            sql_cmd += note_mod;
             sql_cmd += ",-1,'',";
             sql_cmd += "\'";
             sql_cmd += word;
+            sql_cmd += '\x1f';
+            sql_cmd += meaning;
             sql_cmd += "\',";
             sql_cmd += "\'";
             sql_cmd += meaning;
-            sql_cmd += "\',4077833205,0,'');";
+            sql_cmd += "\',";
+            sql_cmd += sha1_str;
+            sql_cmd += ",";
+            sql_cmd += "0,'');";
 
             sql_cmd += "INSERT INTO cards VALUES(";
             sql_cmd += std::to_string(micros());
-            sql_cmd += ",0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,'');";
+            sql_cmd += ",";
+            sql_cmd += note_id;
+            sql_cmd += ",";
+            sql_cmd += deck_id;
+            sql_cmd += ",";
+            sql_cmd += "0";
+            sql_cmd += ",";
+            sql_cmd += note_mod;
+            sql_cmd += "-1,0,0,484332854,0,0,0,0,0,0,0,0,'');";
 
         }
         else if (retval == SQLITE_DONE)
