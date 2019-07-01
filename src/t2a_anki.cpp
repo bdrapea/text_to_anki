@@ -50,11 +50,11 @@ void add_anki_collection(
 
     std::stringstream sql_insert_col;
     sql_insert_col << "INSERT INTO col VALUES(1,1332961200,1398130163295,1398130163168,11,0,0,0,";
-    sql_insert_col << '\'' << load_file_in_string(conf_json_path) << '\'';
-    sql_insert_col << '\'' << load_file_in_string(models_json_path) << '\'';
-    sql_insert_col << '\'' << load_file_in_string(decks_json_path) << '\'';
-    sql_insert_col << '\'' << load_file_in_string(dconf_json_path) << '\'';
-    sql_insert_col << ", \"mod\": 0, \"id\": 1, \"autoplay\": true}}','{}');";
+    sql_insert_col << '\'' << load_file_in_string(conf_json_path) << "\',";
+    sql_insert_col << '\'' << load_file_in_string(models_json_path) << "\',";
+    sql_insert_col << '\'' << load_file_in_string(decks_json_path) << "\',";
+    sql_insert_col << '\'' << load_file_in_string(dconf_json_path) << "\',";
+    sql_insert_col << "'{}');";
 
     std::cout << sql_insert_col.str() << std::endl;
     int sql_err = sqlite3_exec(anki_db,
