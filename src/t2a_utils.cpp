@@ -23,13 +23,6 @@ void check_file(const boost::filesystem::path& file_path)
     }
 }
 
-void check_pdf(const boost::filesystem::path& pdf_path)
-{
-    if( poppler::document::load_from_file(pdf_path.c_str()) == nullptr)
-    {
-        throw "Cannot load pdf file";
-    }
-}
 
 void run_process(const char* command)
 {
@@ -64,5 +57,64 @@ long micros()
     microseconds mr =
         duration_cast<microseconds>(system_clock::now().time_since_epoch());
     return mr.count();
+}
+
+bool is_kanji(const char* character)
+{
+    if (character[0] == '[')
+    {
+        return true;
+    }
+
+    char tmp_arr[4] =
+    {
+        character[2],
+        character[1],
+        character[0],
+        0
+    };
+
+    int val = 0;
+    std::memcpy(&val, tmp_arr, 4);
+
+    if (val >= KANJI_UNICODE_LOWER_BOUND && val <= KANJI_UNICODE_UPPER_BOUND)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool is_kana(const char* character)
+{
+    char tmp_arr[4] =
+    {
+        character[2],
+        character[1],
+        character[0],
+        0
+    };
+
+    int val = 0;
+    std::memcpy(&val, tmp_arr, 4);
+
+    if (val >= KANA_UNICODE_LOWER_BOUND && val <= KANA_UNICODE_UPPER_BOUND)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool is_jlpt_level(const char* character)
+{
+    if (character[0] != 'N'
+            || character[1] <= '0'
+            || character[1] > '5')
+    {
+        return false;
+    }
+
+    return true;
 }
 }

@@ -13,7 +13,74 @@ void generate_reference_database_from_goi_pdf(
     sqlite3_open(reference_database_path.c_str(), &ref_db);
     sqlite3_close(ref_db);
 
-    std::cout << goi_pdf->create_page(0)->text().to_utf8().data() << std::endl;
+    int page_count = goi_pdf->pages();
+
+    for (int i = 0; i < 1; i++)
+    {
+        std::stringstream buff(
+                    goi_pdf->create_page(i)->text().to_utf8().data());
+        std::string line;
+
+        // Skip header
+        do
+        {
+            std::getline(buff, line);
+        }
+        while (!is_jlpt_level(line.data()));
+
+        bool new_voc = false;
+        std::string kana = "";
+
+        while (line.find("Page") == std::string::npos)
+        {
+            // Read the data
+            std::stringstream line_buf(line);
+            std::string tmp = "";
+            std::string kanji = "";
+            std::string meaning = "";
+            while (line_buf >> tmp)
+            {
+                // Extract word
+                const char* character = tmp.data();
+
+                if (is_jlpt_level(character))
+                {
+                    new_voc = true;
+                }
+                else if (is_kanji(character))
+                {
+                    kanji += character;
+                }
+                else if (is_kana(character))
+                {
+                    kana += character;
+                    if (new_voc == false)
+                    {
+                        kana = "";
+                    }
+
+                    std::cout << kana << std::endl;
+                }
+                else
+                {
+                    if(meaning.empty())
+                    {
+                        meaning += character;
+                    }
+                    else
+                    {
+                        meaning += " ";
+                        meaning += character;
+                    }
+
+                }
+            }
+
+            std::getline(buff, line);
+
+            new_voc = false;
+        }
+    }
 }
 
 void generate_sub_database_from_string(
