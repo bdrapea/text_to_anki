@@ -17,4 +17,6 @@ constexpr const char* CREATE_VOCABULARY_TABLE =
 std::string sql_insert_vocabulary(const char* word, const char* meaning);
 void check_database(const boost::filesystem::path& database_path);
 void check_output_database(const boost::filesystem::path& output_db_path);
+
+int sql_callback(void *data, int argc, char **argv, char **azColName);
 }

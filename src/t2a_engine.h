@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 
 #include <sqlite3.h>

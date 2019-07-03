@@ -84,6 +84,7 @@ void add_anki_collection(
     sqlite3* voc_db = nullptr;
     sqlite3_open(vocabulary_db_path.c_str(), &voc_db);
     sqlite3_prepare_v2(voc_db, "SELECT * FROM Vocabulary", -1, &stmt, nullptr);
+    std::stringstream sql_all_inserts;
     while (true)
     {
         retval = sqlite3_step(stmt);
@@ -93,16 +94,20 @@ void add_anki_collection(
             const char* word =
                 reinterpret_cast<const char*>(
                     sqlite3_column_text(stmt, WORD_COLUMN_INDEX));
-            const char* meaning =
+            std::string meaning =
                 reinterpret_cast<const char*>(
                     sqlite3_column_text(stmt, MEANING_COLUMN_INDEX));
+            if (meaning.find("'") != std::string::npos)
+            {
+                boost::algorithm::replace_all(meaning, "'", "''");
+            }
 
             long note_id = micros();
             long note_mod = seconds();
             boost::uuids::uuid guid = boost::uuids::random_generator()();
             std::string sha1_checksum = "";
             boost::uuids::detail::sha1 sha1;
-            sha1.process_bytes(meaning, std::strlen(meaning));
+            sha1.process_bytes(meaning.c_str(), meaning.size());
             unsigned hash[5] = {0};
             sha1.get_digest(hash);
             for (size_t i = 0; i < sizeof(hash) / sizeof(hash[0]); i++)
@@ -134,21 +139,20 @@ void add_anki_collection(
             sql_insert_cards << note_mod << ",";
             sql_insert_cards << "-1,0,0,484332854,0,0,0,0,0,0,0,0,'');";
 
-            std::stringstream sql_all_inserts;
             sql_all_inserts << sql_insert_notes.str();
             sql_all_inserts << sql_insert_cards.str();
-
-            int sql_err = sqlite3_exec(anki_db,
-                                       sql_all_inserts.str().c_str(),
-                                       nullptr,
-                                       nullptr,
-                                       nullptr);
         }
         else if (retval == SQLITE_DONE)
         {
             break;
         }
     }
+
+    sqlite3_exec(anki_db,
+                 sql_all_inserts.str().c_str(),
+                 nullptr,
+                 nullptr,
+                 nullptr);
 
     sqlite3_finalize(stmt);
     sqlite3_close(voc_db);

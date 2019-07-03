@@ -36,4 +36,16 @@ void check_output_database(const boost::filesystem::path& output_db_path)
         remove(output_db_path);
     }
 }
+
+int sql_callback(void *data, int argc, char **argv, char **azColName)
+{
+    int i;
+    fprintf(stderr, "%s: ", reinterpret_cast<const char*>(data));
+    for (i=0; i<argc; i++)
+    {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+    return 0;
+}
 }

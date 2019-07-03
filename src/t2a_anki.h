@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/json_parser.hpp>
