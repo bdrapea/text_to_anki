@@ -26,7 +26,7 @@ set(INCLUDE_DIRS
     ${SQLite3_INCLUDE_DIRS}
     ${Poppler_INCLUDE_DIRS})
 set(LIBS
-    ${Boost_LIBS} -lboost_system -lboost_filesystem
+    ${Boost_LIBS} -lboost_system -lboost_filesystem -lboost_program_options
     ${SQLite3_LIBS} -lsqlite3
     ${Poppler_LIBS} -lpoppler-cpp)
 

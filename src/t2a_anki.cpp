@@ -73,11 +73,9 @@ void add_anki_collection(
     sql_insert_col << '\'' << load_file_in_string(dconf_json_path) << "\',";
     sql_insert_col << "'{}');";
 
-    int sql_err = sqlite3_exec(anki_db,
-                               sql_insert_col.str().c_str(),
-                               nullptr,
-                               nullptr,
-                               nullptr);
+    sqlite3_exec(anki_db,
+                 sql_insert_col.str().c_str(),
+                 nullptr, nullptr, nullptr);
 
     int retval = SQLITE_OK;
     sqlite3_stmt* stmt = nullptr;
@@ -85,6 +83,7 @@ void add_anki_collection(
     sqlite3_open(vocabulary_db_path.c_str(), &voc_db);
     sqlite3_prepare_v2(voc_db, "SELECT * FROM Vocabulary", -1, &stmt, nullptr);
     std::stringstream sql_all_inserts;
+    boost::uuids::basic_random_generator<boost::mt19937> rand_gen;
     while (true)
     {
         retval = sqlite3_step(stmt);
@@ -104,17 +103,17 @@ void add_anki_collection(
 
             long note_id = micros();
             long note_mod = seconds();
-            boost::uuids::uuid guid = boost::uuids::random_generator()();
+            boost::uuids::uuid guid = rand_gen();
             std::string sha1_checksum = "";
             boost::uuids::detail::sha1 sha1;
             sha1.process_bytes(meaning.c_str(), meaning.size());
             unsigned hash[5] = {0};
             sha1.get_digest(hash);
-            for (size_t i = 0; i < sizeof(hash) / sizeof(hash[0]); i++)
+            size_t hash_count = sizeof(hash) / sizeof(hash[0]);
+            for (size_t i = 0; i < hash_count; i++)
             {
                 sha1_checksum += std::to_string(hash[i]);
             }
-            sha1_checksum = sha1_checksum.substr(0, SHA1_CHECKSUM_DIGITS);
 
             std::stringstream sql_insert_notes;
             sql_insert_notes << "INSERT INTO notes VALUES(";
@@ -126,7 +125,8 @@ void add_anki_collection(
             sql_insert_notes << "'" << word << "'" << "|| CHAR(0x1f) ||";
             sql_insert_notes << " '" << meaning << "',";
             sql_insert_notes << "'" << word <<"',";
-            sql_insert_notes << sha1_checksum <<",";
+            sql_insert_notes << sha1_checksum.substr(0, SHA1_CHECKSUM_DIGITS)
+                             <<",";
             sql_insert_notes << "0,'');";
 
             std::stringstream sql_insert_cards;

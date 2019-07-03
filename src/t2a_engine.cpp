@@ -191,9 +191,6 @@ void generate_sub_database_from_string(
 
     std::cout << sql_cmd << std::endl;
     sqlite3_exec(out_db, sql_cmd.c_str(), nullptr, nullptr, nullptr);
-
-    std::cout << sqlite3_errmsg(out_db) << std::endl;
-
     sqlite3_finalize(stmt);
     sqlite3_close(ref_db);
     sqlite3_close(out_db);
