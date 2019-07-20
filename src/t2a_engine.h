@@ -1,19 +1,9 @@
 #pragma once
 
-#include <cstring>
-#include <iostream>
-#include <string>
-
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
-
-#include <sqlite3.h>
-
 #include <poppler/cpp/poppler-page.h>
 #include <poppler/cpp/poppler-document.h>
 
 #include "t2a_anki.h"
-#include "t2a_sqlite.h"
 #include "t2a_utils.h"
 
 namespace t2a

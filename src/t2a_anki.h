@@ -1,35 +1,16 @@
 #pragma once
 
-#include <chrono>
-#include <iostream>
-#include <thread>
-
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <sqlite3.h>
-
-#include "t2a_sqlite.h"
 #include "t2a_utils.h"
 
 namespace t2a
 {
-constexpr const char* TEMPLATE_DIR_NAME = "templates";
-constexpr const char* ANKI_SQL_TEMPLATE_FILENAME =
-    "anki2_default_sql_template.sql";
-constexpr const char* DEFAULT_CONF_JSON_FILENAME = "default_conf.json";
-constexpr const char* DEFAULT_MODELS_JSON_FILENAME = "default_models.json";
-constexpr const char* DEFAULT_DECKS_JSON_FILENAME = "default_decks.json";
-constexpr const char* DEFAULT_DCONF_JSON_FILENAME = "default_dconf.json";
-constexpr const char* DEFAULT_DECKS_ID = "1398130078204";
-constexpr const long DEFAULT_MODEL_ID = 1342697561419;
-constexpr const int SHA1_CHECKSUM_DIGITS = 10;
-
 void create_empty_anki_media_file(
     const boost::filesystem::path& anki_media_file_path);
 

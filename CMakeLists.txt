@@ -13,12 +13,11 @@ find_library(Poppler REQUIRED)
 set(SOURCES "src/main.cpp"
             "src/t2a_engine.cpp"
             "src/t2a_utils.cpp"
-            "src/t2a_anki.cpp"
-            "src/t2a_sqlite.cpp")
+            "src/t2a_anki.cpp")
 set(HEADERS "src/t2a_engine.h"
             "src/t2a_utils.h"
             "src/t2a_anki.h"
-            "src/t2a_sqlite.h")
+            "src/t2a_constants.h")
 
 #set dependencies
 set(INCLUDE_DIRS
