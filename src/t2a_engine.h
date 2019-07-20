@@ -4,10 +4,12 @@
 #include <poppler/cpp/poppler-document.h>
 
 #include "t2a_anki.h"
-#include "t2a_utils.h"
 
 namespace t2a
 {
+boost::property_tree::ptree check_and_normalize_console_inputs(
+    int argc, char** argv);
+
 void generate_reference_database_from_goi_pdf(
     const boost::filesystem::path& goi_pdf_path,
     const boost::filesystem::path& reference_database_path);

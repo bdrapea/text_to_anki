@@ -14,16 +14,6 @@ std::string load_file_in_string(const boost::filesystem::path& file_path)
     return final_str;
 }
 
-void check_file(const boost::filesystem::path& file_path)
-{
-    if (boost::filesystem::exists(file_path) == false)
-    {
-        throw "Cannot open file, please check either the path or if the file"
-        " can be read";
-    }
-}
-
-
 void run_process(const char* command)
 {
     FILE* process = popen(command, "r");

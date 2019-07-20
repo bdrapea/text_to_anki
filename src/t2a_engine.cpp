@@ -2,6 +2,54 @@
 
 namespace t2a
 {
+boost::property_tree::ptree check_and_normalize_console_inputs(
+    int argc, char** argv)
+{
+    boost::property_tree::ptree pt;
+
+    auto lamda_check_if_empty_parameter =
+    [argc, argv](const int i)
+    {
+        if (i + 1 == argc && argv[i+1][0] == '-')
+        {
+            throw std::string("Please precise parameter after")
+                    + argv[i];
+        }
+    };
+
+    auto lambda_check_if_file_exist =
+    [](const char* path)
+    {
+        if (boost::filesystem::exists(path) == false)
+        {
+            throw std::string(path) + " doesn't exist";
+        }
+    };
+
+    for (int i = 0; i < argc; i++)
+    {
+        if (argv[i][0] == '-')
+        {
+            switch (argv[i][1])
+            {
+            case 'i':
+                std::cout << "Input: " << argv[i+1] << std::endl;
+                break;
+
+            case 'o':
+                std::cout << "Output: " << argv[i+1] << std::endl;
+                break;
+
+            default:
+                throw std::string(
+                            "Unknown option :" + std::string(argv[i]));
+            }
+        }
+    }
+
+    return pt;
+}
+
 void generate_reference_database_from_goi_pdf(
     const boost::filesystem::path& goi_pdf_path,
     const boost::filesystem::path& reference_database_path)
@@ -92,7 +140,6 @@ void generate_reference_database_from_goi_pdf(
                     {
                         meaning += " ";
                         meaning += tmp;
-
                     }
                 }
             }
@@ -164,7 +211,6 @@ void generate_sub_database_from_string(
 
             if (str.find(word.substr(0, space_index)) != std::string::npos)
             {
-
                 sql_cmd += "(";
                 sql_cmd += "'";
                 sql_cmd += word;
@@ -215,9 +261,9 @@ void generate_anki_apkg_from_database(
     create_default_anki2_file(anki_anki2_path);
 
     /** Add db value to anki2 file **/
-    add_anki_collection(vocabulary_database_path,
-                        anki_anki2_path,
-                        apkg_stem);
+    add_database_to_anki_collection(vocabulary_database_path,
+                                    anki_anki2_path,
+                                    apkg_stem);
 
     /** Zipping media file and anki2 file to apkg **/
     create_apkg(anki_anki2_path, anki_media_path, apkg_stem);

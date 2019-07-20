@@ -26,7 +26,7 @@ void create_default_anki2_file(const boost::filesystem::path& anki2_path)
     sqlite3_close(anki2_db);
 }
 
-void add_anki_collection(
+void add_database_to_anki_collection(
     const boost::filesystem::path& vocabulary_db_path,
     const boost::filesystem::path& anki2_path,
     const char* collection_name)
@@ -159,7 +159,6 @@ void add_anki_collection(
     sqlite3_close(anki_db);
 }
 
-
 void create_apkg(
     const boost::filesystem::path& anki2_path,
     const boost::filesystem::path& media_path,
@@ -176,15 +175,5 @@ void create_apkg(
     zip_command += media_path.c_str();
 
     run_process(zip_command.c_str());
-}
-
-void check_output_anki_apkg(const boost::filesystem::path& anki_apkg_path)
-{
-    if (boost::filesystem::exists(anki_apkg_path))
-    {
-        std::cerr << "Output database already present: deleting it ..."
-                  << std::endl;
-        remove(anki_apkg_path);
-    }
 }
 }
